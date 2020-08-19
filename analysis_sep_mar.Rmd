@@ -1,0 +1,879 @@
+---
+title: "Analysis_New_Dates"
+author: "Claudia Flores"
+date: "8/10/2020"
+output: html_document
+---
+
+```{r}
+# Read in packages.
+library(tidyverse) # for basic functions
+library(dplyr) # for basic functions
+library(janitor) # for clean up of data
+library(stringr) # for name changing of observations in a column
+library(lubridate) # for dates
+library(car)
+
+# Read in data 
+final_list <- read_csv("final_list_sep_mar.csv") 
+
+# Clean up dates
+final_list <- final_list %>% 
+  mutate(reporting_month = str_replace(reporting_month, '14-Sep','Sep-14')) %>%
+  mutate(reporting_month = str_replace(reporting_month, '15-Mar','Mar-15')) %>% 
+  mutate(reporting_month = str_replace(reporting_month, '15-Sep','Sep-15')) %>% 
+  mutate(reporting_month = str_replace(reporting_month, '16-Mar','Mar-16')) %>% 
+  mutate(reporting_month = str_replace(reporting_month, '16-Sep','Sep-16')) %>% 
+  mutate(reporting_month = str_replace(reporting_month, '17-Mar','Mar-17')) %>% 
+  mutate_if(is.numeric, round, digits = 2) 
+#%>% 
+  #mutate(reporting_month = lubridate::parse_date_time(reporting_month, "my")) %>% 
+  #mutate(month = month(reporting_month, label = TRUE)) %>% 
+  #mutate(year = year(reporting_month)) %>% 
+  #unite(reporting_month, month, year, sep = "-") %>% 
+  #select(city_name,number_of_water_systems,reporting_month,reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014, binary_city_run_or_no, four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city,has_your_jurisdiction_adopted_programs_and_or_policies_to_improve_water_use_efficiency,retrofit_requirements_for_commercial_buildings_at_re_sale,retrofit_requirements_for_residential_buildings_at_re_sale, regulations_that_prohibit_development_projects_that_would_result_in_a_net_increase_in_water_use, ordinances_for_recycled_water, ordinances_or_landscaping_standards, development_standards_that_require_or_promote_low_impact_development_lid, residential_water_use_restrictions_e_g_limited_landscape_watering_times, commercial_water_use_restrictions_e_g_limited_landscape_watering_times, requirements_for_water_metering_at_residential_developments)
+
+# Graphing data
+ggplot(final_list, aes(sample = reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) +
+  geom_qq()
+
+ggplot( data = final_list, aes(x = reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) + 
+  geom_histogram()
+
+ggsave("distrubtion_histo.png")
+```
+
+```{r}
+## Data Check
+
+# Number of cities
+number_of_cities <- final_list %>% 
+  distinct(city_name)
+
+# Average number of water systems
+average_water_systems <- final_list %>% 
+  summarize(avg_number_of_water_system = mean(number_of_water_systems))
+
+# Number of cities that run their own water system
+city_run_water_systems <- final_list %>% 
+  filter(binary_city_run_or_no == 1) %>% 
+  distinct(city_name)
+
+# Number of cities that do NOT run their own water system
+non_city_run_water_systems <- final_list %>% 
+  filter(binary_city_run_or_no == 0) %>% 
+  distinct(city_name)
+
+# Number of oberseravtions for each city
+observation_count <- final_list %>% 
+  count(city_name)
+```
+
+
+Wet and Dry Months
+```{r}
+## General Analysis 
+### Averages
+
+# Average for all months (wet + dry)
+all_months <- final_list %>% 
+    summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+
+# Average of all wet months
+wet_months <- final_list %>% 
+  filter(reporting_month %in% c("Mar-15","Mar-16", "Mar-17")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+# Average of all dry months
+dry_months <- final_list %>% 
+  filter(reporting_month %in% c("Sep-14", "Sep-15", "Sep-16")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+ 
+### Standard Deviation and Error
+all_months <- final_list %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sd_avg_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sample_size = n(),
+    se_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) / sqrt(n()))
+
+wet_months <- final_list %>% 
+   filter(reporting_month %in% c("Mar-15","Mar-16", "Mar-17")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sd_avg_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sample_size = n(),
+    se_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) / sqrt(n()))
+
+dry_months <- final_list %>% 
+   filter(reporting_month %in% c("Sep-14", "Sep-15", "Sep-16")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sd_avg_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sample_size = n(),
+    se_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) / sqrt(n()))
+
+### Median
+# Median for all months (wet + dry)
+all_months <- final_list %>% 
+    summarize(median_rgpcd = median(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+# Median of all wet months
+wet_months <- final_list %>% 
+   filter(reporting_month %in% c("Mar-15","Mar-16", "Mar-17")) %>% 
+  summarize(median_rgpcd = median(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+# Median of all dry months
+dry_months <- final_list %>% 
+  filter(reporting_month %in% c("Sep-14", "Sep-15", "Sep-16")) %>% 
+  summarize(median_rgpcd = median(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+
+### Each City Average
+
+# Average for each city for Mar and Sept (wet and dry) months 
+wet_dry_months_each <- final_list %>% 
+  mutate(reporting_date = lubridate::parse_date_time(reporting_month, "my")) %>% 
+  mutate(month = month(reporting_date, label = TRUE)) %>% 
+  mutate(year = year(reporting_date)) %>% 
+  group_by(city_name, month) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+
+# Observation count for above
+observation_count <- wet_dry_months_each %>% 
+  count(city_name)
+
+# Transposing
+wide_wet_dry_months_each <- spread(wet_dry_months_each, key = month, value = avg_rgpcd) %>% 
+  clean_names() %>% 
+  ungroup(city_name,month) 
+
+wet_mar <- wide_wet_dry_months_each %>% 
+  pull(mar)
+dry_sep <- wide_wet_dry_months_each %>% 
+  pull(sep)
+
+# T test
+t_test_wet_dry <- t.test(wet_mar, dry_sep, alternative = "two.sided", paired = TRUE)
+t_test_wet_dry
+
+```
+
+
+
+```{r}
+### System Type Analysis 
+#### City and Multiple/Mutual/Other City or Also Known as Water Sytem Run by City
+
+# Average for all months (wet + dry)
+all_months <- final_list %>% 
+    filter(binary_city_run_or_no == 1) %>% 
+    summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+
+# Average of all wet months
+wet_months <- final_list %>% 
+  filter(binary_city_run_or_no == 1) %>% 
+  filter(reporting_month %in% c("Mar-15","Mar-16", "Mar-17")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+# Average of all dry months
+dry_months <- final_list %>% 
+  filter(binary_city_run_or_no == 1) %>% 
+  filter(reporting_month %in% c("Sep-14", "Sep-15", "Sep-16")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+### Standard Deviation and Error
+all_months <- final_list %>% 
+    filter(binary_city_run_or_no == 1) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sd_avg_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sample_size = n(),
+    se_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) / sqrt(n()))
+
+wet_months <- final_list %>% 
+    filter(binary_city_run_or_no == 1) %>% 
+    filter(reporting_month %in% c("Mar-15","Mar-16", "Mar-17")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sd_avg_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sample_size = n(),
+    se_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) / sqrt(n()))
+
+dry_months <- final_list %>% 
+    filter(binary_city_run_or_no == 1) %>% 
+    filter(reporting_month %in% c("Sep-14", "Sep-15", "Sep-16")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sd_avg_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sample_size = n(),
+    se_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) / sqrt(n()))
+
+### Median
+# Median for all months (wet + dry)
+all_months <- final_list %>% 
+    filter(binary_city_run_or_no == 1) %>% 
+    summarize(median_rgpcd = median(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+# Median of all wet months
+wet_months <- final_list %>% 
+  filter(binary_city_run_or_no == 1) %>% 
+  filter(reporting_month %in% c("Mar-15","Mar-16", "Mar-17")) %>% 
+  summarize(median_rgpcd = median(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+# Median of all dry months
+dry_months <- final_list %>% 
+  filter(binary_city_run_or_no == 1) %>% 
+  filter(reporting_month %in% c("Sept-14", "Sep-15", "Sep-16")) %>% 
+  summarize(median_rgpcd = median(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+```
+
+```{r}
+### System Type Analysis 
+#### City and Multiple/Mutual/Other City or Also Known as Water Sytem NOT Run by City
+
+# Average for all months (wet + dry)
+all_months <- final_list %>% 
+    filter(binary_city_run_or_no == 0) %>% 
+    summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+
+# Average of all wet months
+wet_months <- final_list %>% 
+  filter(binary_city_run_or_no == 0) %>% 
+  filter(reporting_month %in% c("Mar-15","Mar-16", "Mar-17")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+# Average of all dry months
+dry_months <- final_list %>% 
+  filter(binary_city_run_or_no == 0) %>% 
+  filter(reporting_month %in% c("Sep-14", "Sep-15", "Sep-16")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+### Standard Deviation and Error
+all_months <- final_list %>% 
+    filter(binary_city_run_or_no == 0) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sd_avg_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sample_size = n(),
+    se_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) / sqrt(n()))
+
+wet_months <- final_list %>% 
+    filter(binary_city_run_or_no == 0) %>% 
+    filter(reporting_month %in% c("Mar-15","Mar-16", "Mar-17")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sd_avg_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sample_size = n(),
+    se_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) / sqrt(n()))
+
+dry_months <- final_list %>% 
+    filter(binary_city_run_or_no == 0) %>% 
+    filter(reporting_month %in% c("Sep-14", "Sep-15", "Sep-16")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sd_avg_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sample_size = n(),
+    se_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) / sqrt(n()))
+
+### Median
+# Median for all months (wet + dry)
+all_months <- final_list %>% 
+    filter(binary_city_run_or_no == 0) %>% 
+    summarize(median_rgpcd = median(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+# Median of all wet months
+wet_months <- final_list %>% 
+  filter(binary_city_run_or_no == 0) %>% 
+  filter(reporting_month %in% c("Mar-15","Mar-16", "Mar-17")) %>% 
+  summarize(median_rgpcd = median(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+# Median of all dry months
+dry_months <- final_list %>% 
+  filter(binary_city_run_or_no == 0) %>% 
+  filter(reporting_month %in% c("Sep-14", "Sep-15", "Sep-16")) %>% 
+  summarize(median_rgpcd = median(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+
+# T Test
+# Average for Run by City and Not Run by City
+wet_dry_months_each_city <- final_list %>% 
+  filter(binary_city_run_or_no == 1) %>% 
+  group_by(city_name) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+wet_dry_months_each_non_city <- final_list %>% 
+  filter(binary_city_run_or_no == 0) %>% 
+  group_by(city_name) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+  
+wet_dry_months_each_1 <- final_list %>% 
+  filter(binary_city_run_or_no == 1) %>% 
+  mutate(reporting_date = lubridate::parse_date_time(reporting_month, "my")) %>% 
+  mutate(month = month(reporting_date, label = TRUE)) %>% 
+  mutate(year = year(reporting_date)) %>% 
+  group_by(city_name, month) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+
+wet_dry_months_each_0 <- final_list %>% 
+  filter(binary_city_run_or_no == 0) %>% 
+  mutate(reporting_date = lubridate::parse_date_time(reporting_month, "my")) %>% 
+  mutate(month = month(reporting_date, label = TRUE)) %>% 
+  mutate(year = year(reporting_date)) %>% 
+  group_by(city_name, month) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+
+# Transposing: Dry and Wet
+wide_wet_dry_months_each_1 <- spread(wet_dry_months_each_1, key = month, value = avg_rgpcd) %>% 
+  clean_names() %>% 
+  ungroup(city_name,month) 
+
+wide_wet_dry_months_each_0 <- spread(wet_dry_months_each_0, key = month, value = avg_rgpcd) %>% 
+  clean_names() %>% 
+  ungroup(city_name,month) 
+
+
+# Pulling out vectors: city run and not city run
+city <- wet_dry_months_each_city %>% 
+  pull(avg_rgpcd)
+non_city <- wet_dry_months_each_non_city %>% 
+  pull(avg_rgpcd)
+
+# Pulling out vectors: Dry and Wet
+wet_mar_1 <- wide_wet_dry_months_each_1 %>% 
+  pull(mar)
+dry_sep_1 <- wide_wet_dry_months_each_1 %>% 
+  pull(sep)
+
+wet_mar_0 <- wide_wet_dry_months_each_0 %>% 
+  pull(mar)
+dry_sep_0 <- wide_wet_dry_months_each_0 %>% 
+  pull(sep)
+
+
+# T test: City and non city
+t_test_city_noncity <- t.test(city, non_city)
+t_test_city_noncity
+
+# T test: Dry and Wet
+t_test_dry <- t.test(dry_sep_1, dry_sep_0)
+t_test_wet <- t.test(wet_mar_1, wet_mar_0)
+t_test_dry 
+t_test_wet
+
+```
+
+
+```{r}
+### Number of Water Systems Analysis 
+#### Cities with One Water System
+all_months <- final_list %>% 
+    filter(number_of_water_systems == 1) %>% 
+    summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+
+# Average of all wet months
+wet_months <- final_list %>% 
+  filter(number_of_water_systems == 1) %>% 
+  filter(reporting_month %in% c("Mar-15","Mar-16", "Mar-17")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+# Average of all dry months
+dry_months <- final_list %>% 
+  filter(number_of_water_systems == 1) %>% 
+  filter(reporting_month %in% c("Sep-14", "Sep-15", "Sep-16")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+### Standard Deviation and Error
+all_months <- final_list %>% 
+  filter(number_of_water_systems == 1) %>% 
+    summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sd_avg_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sample_size = n(),
+    se_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) / sqrt(n()))
+
+wet_months <- final_list %>% 
+    filter(number_of_water_systems == 1) %>% 
+    filter(reporting_month %in% c("Mar-15","Mar-16", "Mar-17")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sd_avg_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sample_size = n(),
+    se_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) / sqrt(n()))
+
+dry_months <- final_list %>% 
+    filter(number_of_water_systems == 1) %>% 
+    filter(reporting_month %in% c("Sep-14", "Sep-15", "Sep-16")) %>% 
+    summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sd_avg_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sample_size = n(),
+    se_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) / sqrt(n()))
+
+### Median
+# Median for all months (wet + dry)
+all_months <- final_list %>% 
+    filter(number_of_water_systems == 1) %>% 
+    summarize(median_rgpcd = median(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+# Median of all wet months
+wet_months <- final_list %>% 
+  filter(number_of_water_systems == 1) %>% 
+  filter(reporting_month %in% c("Mar-15","Mar-16", "Mar-17")) %>% 
+  summarize(median_rgpcd = median(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+# Median of all dry months
+dry_months <- final_list %>% 
+  filter(number_of_water_systems == 1) %>% 
+  filter(reporting_month %in% c("Sep-14", "Sep-15", "Sep-16")) %>% 
+  summarize(median_rgpcd = median(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+
+
+#### Cities with One or More Water System
+all_months <- final_list %>% 
+    filter(number_of_water_systems >= 2) %>% 
+    summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+
+# Average of all wet months
+wet_months <- final_list %>% 
+  filter(number_of_water_systems >= 2) %>% 
+  filter(reporting_month %in% c("Mar-15","Mar-16", "Mar-17")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+# Average of all dry months
+dry_months <- final_list %>% 
+  filter(number_of_water_systems >= 2) %>% 
+  filter(reporting_month %in% c("Sep-14", "Sep-15", "Sep-16")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+### Standard Deviation and Error
+all_months <- final_list %>% 
+  filter(number_of_water_systems >= 2) %>% 
+    summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sd_avg_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sample_size = n(),
+    se_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) / sqrt(n()))
+
+wet_months <- final_list %>% 
+   filter(number_of_water_systems >= 2) %>% 
+    filter(reporting_month %in% c("Mar-15","Mar-16", "Mar-17")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sd_avg_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sample_size = n(),
+    se_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) / sqrt(n()))
+
+dry_months <- final_list %>% 
+   filter(number_of_water_systems >= 2) %>% 
+    filter(reporting_month %in% c("Sep-14", "Sep-15", "Sep-16")) %>% 
+    summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sd_avg_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sample_size = n(),
+    se_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) / sqrt(n()))
+
+### Median
+# Median for all months (wet + dry)
+all_months <- final_list %>% 
+    filter(number_of_water_systems >= 2) %>% 
+    summarize(median_rgpcd = median(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+# Median of all wet months
+wet_months <- final_list %>% 
+  filter(number_of_water_systems >= 2) %>% 
+  filter(reporting_month %in% c("Mar-15","Mar-16", "Mar-17")) %>% 
+  summarize(median_rgpcd = median(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+# Median of all dry months
+dry_months <- final_list %>% 
+  filter(number_of_water_systems >= 2) %>% 
+  filter(reporting_month %in% c("Sep-14", "Sep-15", "Sep-16")) %>% 
+  summarize(median_rgpcd = median(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+
+# T Test
+# Average for Run by City and Not Run by City
+wet_dry_months_each_one_ws <- final_list %>% 
+  filter(number_of_water_systems == 1) %>% 
+  group_by(city_name) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+wet_dry_months_each_two_or_more_ws <- final_list %>% 
+  filter(number_of_water_systems >= 2) %>% 
+  group_by(city_name) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+  
+wet_dry_months_each_one_ws_t <- final_list %>% 
+  filter(number_of_water_systems == 1) %>% 
+  mutate(reporting_date = lubridate::parse_date_time(reporting_month, "my")) %>% 
+  mutate(month = month(reporting_date, label = TRUE)) %>% 
+  mutate(year = year(reporting_date)) %>% 
+  group_by(city_name, month) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+
+wet_dry_months_each_two_or_more_ws_t <- final_list %>% 
+  filter(number_of_water_systems >= 2) %>% 
+  mutate(reporting_date = lubridate::parse_date_time(reporting_month, "my")) %>% 
+  mutate(month = month(reporting_date, label = TRUE)) %>% 
+  mutate(year = year(reporting_date)) %>% 
+  group_by(city_name, month) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+
+# Transposing: Dry and Wet
+wide_wet_dry_months_each_one_ws_t <- spread(wet_dry_months_each_one_ws_t, key = month, value = avg_rgpcd) %>% 
+  clean_names() %>% 
+  ungroup(city_name,month) 
+
+wide_wet_dry_months_each_two_or_more_ws_t <- spread(wet_dry_months_each_two_or_more_ws_t, key = month, value = avg_rgpcd) %>%
+  clean_names() %>% 
+  ungroup(city_name,month) 
+
+
+
+# Pulling out vectors: City with One Water System and Cities with More than One Water System
+city_only_one <- wet_dry_months_each_one_ws  %>% 
+  pull(avg_rgpcd)
+city_two_or_more <- wet_dry_months_each_two_or_more_ws  %>% 
+  pull(avg_rgpcd)
+
+# Pulling out vectors: Dry and Wet
+wet_mar_one_ws <- wide_wet_dry_months_each_one_ws_t %>% 
+  pull(mar)
+dry_sep_one_ws <- wide_wet_dry_months_each_one_ws_t %>% 
+  pull(sep)
+
+wet_mar_two_or_more_ws <- wide_wet_dry_months_each_two_or_more_ws_t %>% 
+  pull(mar)
+dry_sep_two_or_more_ws <- wide_wet_dry_months_each_two_or_more_ws_t %>% 
+  pull(sep)
+
+# T test: City with One Water System and Cities with More than One Water System
+t_test_one_two_or_more_ws<- t.test(city_only_one, city_two_or_more)
+t_test_one_two_or_more_ws
+
+# T test: Dry and Wet
+t_test_wet_ws <- t.test(wet_mar_one_ws,wet_mar_two_or_more_ws)
+t_test_wet_ws
+
+t_test_dry_ws<- t.test(dry_sep_one_ws, dry_sep_two_or_more_ws, alternative = "two.sided", paired = FALSE)
+t_test_dry_ws
+
+```
+
+Testing my methods
+```{r}
+
+# Testing my methods
+
+test_df <- final_list %>% 
+  filter(number_of_water_systems == 1) %>% 
+  mutate(reporting_date = lubridate::parse_date_time(reporting_month, "my")) %>% 
+  mutate(month = month(reporting_date, label = TRUE)) %>% 
+  mutate(year = year(reporting_date)) %>% 
+  select(city_name, reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014, month)
+
+#wide_test_df <- spread(test_df, key = month, value = reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) %>% 
+  #clean_names()
+
+#wet_jan <- wide_test_df%>% 
+ # pull(jan)
+#dry_jul <- wide_test_df %>% 
+ # pull(jul)
+```
+
+IOUS and Special Districts
+```{r}
+### Analysis for IOUs and Special Districts 
+
+ious <- final_list %>% 
+  filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 2) %>% 
+  distinct(city_name)
+sds <- final_list %>% 
+  filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 3) %>% 
+  distinct(city_name)
+
+
+
+
+#### Cities with IOUs
+all_months <- final_list %>% 
+    filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 2) %>% 
+    summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+
+# Average of all wet months
+wet_months <- final_list %>% 
+    filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 2) %>% 
+  filter(reporting_month %in% c("Mar-15","Mar-16", "Mar-17")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+# Average of all dry months
+dry_months <- final_list %>% 
+    filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 2) %>% 
+  filter(reporting_month %in% c("Sep-14", "Sep-15", "Sep-16")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+### Standard Deviation and Error
+all_months <- final_list %>% 
+    filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 2) %>% 
+    summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sd_avg_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sample_size = n(),
+    se_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) / sqrt(n()))
+
+wet_months <- final_list %>% 
+    filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 2) %>%
+    filter(reporting_month %in% c("Mar-15","Mar-16", "Mar-17")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sd_avg_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sample_size = n(),
+    se_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) / sqrt(n()))
+
+dry_months <- final_list %>% 
+    filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 2) %>%
+    filter(reporting_month %in% c("Sep-14", "Sep-15", "Sep-16")) %>% 
+    summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sd_avg_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sample_size = n(),
+    se_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) / sqrt(n()))
+
+### Median
+# Median for all months (wet + dry)
+all_months <- final_list %>% 
+    filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 2) %>%
+    summarize(median_rgpcd = median(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+
+# Median of all wet months
+wet_months <- final_list %>% 
+  filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 2) %>%
+  filter(reporting_month %in% c("Mar-15","Mar-16", "Mar-17")) %>% 
+  summarize(median_rgpcd = median(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+# Median of all dry months
+dry_months <- final_list %>% 
+  filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 2) %>% 
+  filter(reporting_month %in% c("Sep-14", "Sep-15", "Sep-16")) %>% 
+  summarize(median_rgpcd = median(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+
+
+#### Cities with Special Districts
+all_months <- final_list %>% 
+      filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 3) %>% 
+    summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+
+# Average of all wet months
+wet_months <- final_list %>% 
+    filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 3) %>% 
+  filter(reporting_month %in% c("Mar-15","Mar-16", "Mar-17")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+# Average of all dry months
+dry_months <- final_list %>% 
+    filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 3) %>% 
+  filter(reporting_month %in% c("Sep-14", "Sep-15", "Sep-16")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+### Standard Deviation and Error
+all_months <- final_list %>% 
+    filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 3) %>% 
+    summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sd_avg_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sample_size = n(),
+    se_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) / sqrt(n()))
+
+wet_months <- final_list %>% 
+    filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 3) %>%
+    filter(reporting_month %in% c("Mar-15","Mar-16", "Mar-17")) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sd_avg_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sample_size = n(),
+    se_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) / sqrt(n()))
+
+dry_months <- final_list %>% 
+    filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 3) %>%
+    filter(reporting_month %in% c("Sep-14", "Sep-15", "Sep-16")) %>% 
+    summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sd_avg_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014),
+    sample_size = n(),
+    se_rgpcd = sd(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) / sqrt(n()))
+
+### Median
+# Median for all months (wet + dry)
+all_months <- final_list %>% 
+    filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 3) %>%
+    summarize(median_rgpcd = median(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+
+# Median of all wet months
+wet_months <- final_list %>% 
+  filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 3) %>%
+  filter(reporting_month %in% c("Mar-15","Mar-16", "Mar-17")) %>% 
+  summarize(median_rgpcd = median(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+# Median of all dry months
+dry_months <- final_list %>% 
+  filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 3) %>% 
+  filter(reporting_month %in% c("Sep-14", "Sep-15", "Sep-16")) %>% 
+  summarize(median_rgpcd = median(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+
+# T Test
+# Average for IOUs and Special Districts
+
+wet_dry_months_each_iou <- final_list %>% 
+  filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 2) %>% 
+  group_by(city_name) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+
+wet_dry_months_each_sd <- final_list %>% 
+  filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 3) %>% 
+  group_by(city_name) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014))
+  
+wet_dry_months_each_iou <- final_list %>% 
+  filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 2) %>% 
+  mutate(reporting_date = lubridate::parse_date_time(reporting_month, "my")) %>% 
+  mutate(month = month(reporting_date, label = TRUE)) %>% 
+  mutate(year = year(reporting_date)) %>% 
+  group_by(city_name, month) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+
+wet_dry_months_each_sd <- final_list %>% 
+  filter(four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city == 3) %>% 
+  mutate(reporting_date = lubridate::parse_date_time(reporting_month, "my")) %>% 
+  mutate(month = month(reporting_date, label = TRUE)) %>% 
+  mutate(year = year(reporting_date)) %>% 
+  group_by(city_name, month) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+
+# Transposing: Dry and Wet
+wide_wet_dry_months_each_iou <- spread(wet_dry_months_each_iou, key = month, value = avg_rgpcd) %>% 
+  clean_names() %>% 
+  ungroup(city_name,month) 
+
+wide_wet_dry_months_each_sd <- spread(wet_dry_months_each_sd, key = month, value = avg_rgpcd) %>%
+  clean_names() %>% 
+  ungroup(city_name,month) 
+
+
+# Pulling out vectors: IOUs and Special Districts ###########
+iou <- wet_dry_months_each_iou %>% 
+  pull(avg_rgpcd)
+sd <- wet_dry_months_each_sd %>% 
+  pull(avg_rgpcd)
+
+# Pulling out vectors: Dry and Wet
+wet_mar_iou <- wide_wet_dry_months_each_iou %>% 
+  pull(mar)
+dry_sep_iou <- wide_wet_dry_months_each_iou %>% 
+  pull(sep)
+
+wet_mar_sd <- wide_wet_dry_months_each_sd %>% 
+  pull(mar)
+dry_sep_sd <- wide_wet_dry_months_each_sd %>% 
+  pull(sep)
+
+
+# T test: City with IOUs and Special Districts
+t_test_iou_sd <- t.test(iou, sd)
+t_test_iou_sd
+
+
+# T test: Dry and Wet
+t_test_wet_iou_sd <- t.test(wet_mar_iou, wet_mar_sd)
+t_test_wet_iou_sd
+
+t_test_dry_iou_sd<- t.test(dry_sep_iou, dry_sep_sd)
+t_test_dry_iou_sd
+
+```
+
+
+```{r}
+# Two Way ANOVA
+### Comparing pre, during, and post Executive Order
+
+############## Using a Levene's Test to look at variance (largest sample variance should be <x4 than the smallest variance)
+#leveneTest(x ~ x * x, data = x)
+
+# Making dataframes to run tests for pre, during, and post executive order
+# Pre
+anova_df_pre <- final_list %>% 
+  filter(reporting_month %in% c("Sep-14", "Mar-15")) %>% 
+  mutate(reporting_date = lubridate::parse_date_time(reporting_month, "my")) %>% 
+  mutate(month = month(reporting_date, label = TRUE)) %>% 
+  mutate(year = year(reporting_date)) %>% 
+  group_by(city_name,binary_city_run_or_no) %>% 
+  summarize(avg_rgpcd_pre_eo = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+# During
+anova_df_during <- final_list %>% 
+  filter(reporting_month %in% c("Sep-15", "Mar-16")) %>% 
+  mutate(reporting_date = lubridate::parse_date_time(reporting_month, "my")) %>% 
+  mutate(month = month(reporting_date, label = TRUE)) %>% 
+  mutate(year = year(reporting_date)) %>% 
+  group_by(city_name, binary_city_run_or_no) %>% 
+  summarize(avg_rgpcd_during_eo = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+# Post
+anova_df_post <- final_list %>% 
+  filter(reporting_month %in% c("Sep-16", "Mar-17")) %>% 
+  mutate(reporting_date = lubridate::parse_date_time(reporting_month, "my")) %>% 
+  mutate(month = month(reporting_date, label = TRUE)) %>% 
+  mutate(year = year(reporting_date)) %>% 
+  group_by(city_name,binary_city_run_or_no) %>% 
+  summarize(avg_rgpcd_post_eo = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) 
+
+# Merging all dataframes together
+anova_df_og <- merge(anova_df_pre,anova_df_during, by = "city_name")
+anova_df_og <- merge(anova_df_og, anova_df_post, by = "city_name")
+
+# Reorganizing anova_df to run a two-way anova
+anova_df <- anova_df_og %>% 
+  select(-binary_city_run_or_no.x) %>% 
+  select(-binary_city_run_or_no.y) %>% 
+  mutate(binary_city_run_or_no = str_replace(binary_city_run_or_no, '0','Not City Run')) %>% 
+  mutate(binary_city_run_or_no = str_replace(binary_city_run_or_no, '1','City Run')) %>%
+  select(binary_city_run_or_no,avg_rgpcd_pre_eo,avg_rgpcd_during_eo,avg_rgpcd_post_eo) 
+
+anova_bind_1 <- anova_df %>% 
+  select(binary_city_run_or_no,avg_rgpcd_pre_eo) %>% 
+  mutate(executive_order_timeline = "Pre") %>% 
+  rename(avg_rgpcd = avg_rgpcd_pre_eo)
+
+anova_bind_2 <- anova_df %>% 
+  select(binary_city_run_or_no,avg_rgpcd_during_eo) %>% 
+  mutate(executive_order_timeline = "During") %>% 
+  rename(avg_rgpcd = avg_rgpcd_during_eo)
+
+anova_bind_3 <- anova_df %>% 
+  select(binary_city_run_or_no,avg_rgpcd_post_eo) %>% 
+  mutate(executive_order_timeline = "Post") %>% 
+  rename(avg_rgpcd = avg_rgpcd_post_eo)
+
+anova_bind <- rbind(anova_bind_1,anova_bind_2)
+anova_bind <- rbind(anova_bind, anova_bind_3)
+
+# Change binary_city_run_or_no and executive_order_timeline columns to factor
+anova_bind <- anova_bind %>% 
+  mutate(binary_city_run_or_no = as.factor(anova_bind$binary_city_run_or_no)) %>% 
+  mutate(executive_order_timeline = as.factor(anova_bind$executive_order_timeline))
+
+# Checking the factor and level of binary_city_run_or_no and executive_order_timeline columns
+class(anova_bind$binary_city_run_or_no)
+levels(anova_bind$binary_city_run_or_no)
+
+class(anova_bind$executive_order_timeline)
+levels(anova_bind$executive_order_timeline)
+
+# Looking at normality and variance to run Two Way ANOVA (Also did a qqplot and histogram in the beginning of code)
+boxplot(anova_bind$avg_rgpcd~anova_bind$executive_order_timeline*anova_bind$binary_city_run_or_no)
+
+ggsave("boxplot.png")
+
+# Main effects plot
+plot.design(anova_bind, main = "Main effects") # the horizontal is the overall mean, across all observations and combinations, of all the numbers
+
+ggsave("main_effects.png")
+
+# Listing the mean of binary_city_run_or_no and executive_order_timeline
+tapply(anova_bind$avg_rgpcd,list(anova_bind$binary_city_run_or_no),mean)
+tapply(anova_bind$avg_rgpcd,list(anova_bind$executive_order_timeline),mean)
+
+# Interaction plot
+interaction.plot(anova_bind$executive_order_timeline,anova_bind$binary_city_run_or_no,anova_bind$avg_rgpcd, col = c("blue","purple","red")) #End point tells us the mean of the combination of the levels
+# We also see how the relationship changes, if at all
+
+ggsave("interaction.png")
+
+# Listing means of the combinations in interaction plot
+tapply(anova_bind$avg_rgpcd,list(anova_bind$executive_order_timeline, anova_bind$binary_city_run_or_no),mean)
+
+# Seeing differences in means or running a two way anova
+aov <- aov(avg_rgpcd~binary_city_run_or_no+executive_order_timeline +executive_order_timeline:binary_city_run_or_no, data = anova_bind)
+summary(aov)
+
+# Looking at residual, should be around 0 if models are good
+boxplot(residuals(aov)~binary_city_run_or_no*executive_order_timeline, data = anova_bind)
+```
