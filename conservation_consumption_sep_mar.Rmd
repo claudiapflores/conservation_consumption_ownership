@@ -1,0 +1,682 @@
+---
+title: "Conservation and Consumption (New Dates)"
+author: "Claudia Flores"
+date: "8/6/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Packages and Data
+```{r}
+# Read in packages.
+library(tidyverse) # for basic functions
+library(dplyr) # for basic functions
+library(janitor) # for clean up of data
+library(stringr) # for name changing of observations in a column
+library(lubridate) # for dates
+library(here) # to get files from folders
+
+# Read in data and clean up column names.
+city_og <- read_csv("city_data.csv") %>% 
+  remove_empty() %>% 
+  clean_names()
+conservation_og <- read_csv("conservation_data.csv") %>% 
+  clean_names()
+consumption_og <- read_csv("consumption_data.csv") %>% 
+  clean_names()
+```
+
+
+Date Check Count
+```{r}
+# Checking to see which dates would be best.
+consumption_date_count <- consumption_og %>% 
+  count(reporting_month)
+
+# Export .csv file.
+ write.csv(consumption_date_count, "consumption_date_count.csv")
+ 
+# Checking count number for dates Greg gave.
+consumption_date_count_greg <- consumption_date_count %>% 
+ filter(reporting_month %in% c('Sep-14','Mar-15','Sep-16','Mar-17','Sep-19','Mar-20'))
+ 
+# New proposed dates.
+ consumption_date_count_new <- consumption_date_count %>%
+   filter(reporting_month %in% c('Sep-14','Mar-15','Sep-15','Mar-16','Sep-16','Mar-17'))
+```
+
+
+Wrangling Data, more specifically names of water utilities
+```{r}
+# Remove parantheses from city dataframe.
+city <- city_og %>% 
+  mutate(water_systems = gsub("\\s*\\([^\\)]+\\)", "", city_og$water_systems))
+
+# Select relevant columns in data and seperate water systems into each row. Get rid of an annotations and blank rows.
+city <- city %>% 
+  select(city_name, population_estimate_as_of_july_1_2018, number_of_water_systems, water_systems) %>% 
+  separate_rows(water_systems, sep = ",") %>% 
+  separate_rows(water_systems, sep = " and ") %>% 
+  separate_rows(water_systems, sep = ";") %>% 
+  mutate(water_systems = str_remove(water_systems, pattern = 'some ')) %>% 
+  mutate(water_systems = str_remove(water_systems, pattern = 'served by ')) %>% 
+  mutate(water_systems = str_remove(water_systems, pattern = 'City of')) %>% 
+  mutate(water_systems = str_replace(water_systems, 'LADWP','Los Angeles Department of Water and Power')) %>% 
+  mutate(water_systems = str_replace(water_systems, 'GSWC','Golden State Water Company')) %>% 
+  mutate(water_systems = str_replace(water_systems, 'Golden State Water Company', (paste(water_systems, city_name, sep = " ") ))) %>% 
+  mutate(water_systems = str_replace(water_systems, 'Cal American Water','California American Water')) %>% 
+  mutate(water_systems = str_replace(water_systems, 'California American Water', (paste(water_systems, city_name, sep = " ") ))) %>% 
+  mutate(water_systems = str_replace(water_systems, 'California Water Service','California Water Service Company')) %>%
+  mutate(water_systems = str_replace(water_systems, 'California Water Service Company', (paste(water_systems, city_name, sep = " ") ))) %>% 
+  mutate(water_systems = stringr::str_squish(water_systems)) %>% 
+  mutate(water_systems_og_names = water_systems) %>% 
+####################### where city water system names are changed into waterboard data names #######################
+  mutate(water_systems = str_replace(water_systems, 'California Water Service Company Atherton','California Water Service Company Mid Peninsula')) %>%
+  mutate(water_systems = str_replace(water_systems, 'California Water Service Company Carson','California Water Service Company Dominguez')) %>%
+  mutate(water_systems = str_replace(water_systems, 'Golden State Water Company Carson','Golden State Water Company Southwest')) %>%
+  mutate(water_systems = str_replace(water_systems, 'California Water Service Company Colma','California Water Service Company South San Francisco')) %>%
+  mutate(water_systems = str_replace(water_systems, 'California American Water Coronado','California-American Water Company San Diego District')) %>%
+  mutate(water_systems = str_replace(water_systems, 'California Water Service Company Cupertino','California Water Service Company Los Altos/Suburban')) %>%
+  mutate(water_systems = str_replace(water_systems, 'Golden State Water Company Cypress','Golden State Water Company Norwalk')) %>%
+  mutate(water_systems = str_replace(water_systems, 'California American Water Del Rey Oaks','California-American Water Company Monterey District')) %>%
+  mutate(water_systems = str_replace(water_systems, 'California American Water Duarte','California-American Water Company Los Angeles District')) %>%
+  mutate(water_systems = str_replace(water_systems, 'Fontana Water Company','San Gabriel Valley Fontana Water Company')) %>%
+  mutate(water_systems = str_replace(water_systems, 'California Water Service Company Hermosa Beach','California Water Service Company Hermosa/Redondo')) %>%
+  mutate(water_systems = str_replace(water_systems, 'California American Water Imperial Beach','California-American Water Company San Diego District')) %>%
+  mutate(water_systems = str_replace(water_systems, 'Indio Water Authority','Indio')) %>%
+  mutate(water_systems = str_replace(water_systems, 'Monrovia Water Division','Monrovia')) %>%
+  mutate(water_systems = str_replace(water_systems, 'Golden State Water Company Irwindale','Golden State Water Company S Arcadia')) %>%
+  mutate(water_systems = str_replace(water_systems, 'Golden State Water Company Lawndale','Golden State Water Company Southwest')) %>%
+  mutate(water_systems = str_replace(water_systems, 'Golden State Water Company Los Alamitos','Golden State Water Company West Orange')) %>%
+  mutate(water_systems = str_replace(water_systems, 'California Water Service Company Los Altos','California Water Service Company Los Altos/Suburban')) %>%
+  mutate(water_systems = str_replace(water_systems, 'California Water Service Company Los Altos Hills','California Water Service Company Los Altos/Suburban')) %>%
+  mutate(water_systems = str_replace(water_systems, 'San Jose Water Company','San Jose Water')) %>%
+  mutate(water_systems = str_replace(water_systems, 'California American Water Monterey','California-American Water Company Monterey District')) %>%
+  mutate(water_systems = str_replace(water_systems, 'Ventura County Waterworks No.1','Ventura County Waterworks District No 1')) %>%
+  mutate(water_systems = str_replace(water_systems, 'Western Municipal Water District','Western Municipal Water District of Riverside')) %>%
+  mutate(water_systems = str_replace(water_systems, 'Rancho California Water District','Rancho California Water')) %>%
+  mutate(water_systems = str_replace(water_systems, 'California American Water Pacific Grove','California-American Water Company Monterey District')) %>%
+  mutate(water_systems = str_replace(water_systems, 'California Water Service Company Palos Verdes Estates','California Water Service Company Palos Verdes')) %>%
+  mutate(water_systems = str_replace(water_systems, 'Martinez Water District','Martinez')) %>%
+  mutate(water_systems = str_replace(water_systems, 'California Water Service Company Rancho Palos Verdes','California Water Service Company Palos Verdes')) %>%
+  mutate(water_systems = str_replace(water_systems, 'California Water Service Company Redondo Beach','California Water Service Company Hermosa/Redondo')) %>%
+  mutate(water_systems = str_replace(water_systems, 'Riverside Public Utilities','Riverside')) %>%
+  mutate(water_systems = str_replace(water_systems, 'California Water Service Company Rolling Hills Estates','California Water Service Company Palos Verdes')) %>%
+  mutate(water_systems = str_replace(water_systems, 'California Water Service Company San Carlos','California Water Service Company Redwood Valley')) %>%
+  mutate(water_systems = str_replace(water_systems, 'California American Water San Marino','California-American Water Company Los Angeles District')) %>%
+  mutate(water_systems = str_replace(water_systems, 'Golden State Water Company Stanton','Golden State Water Company West Orange')) %>%
+  mutate(water_systems = str_replace(water_systems, 'Golden State Water Company Walnut','Golden State Water Company San Dimas')) %>%
+  mutate(water_systems = str_replace(water_systems, 'Covina City Water Company','Covina')) %>%
+  mutate(water_systems = str_replace(water_systems, 'Valencia Heights Water Company','Valencia Water Company')) %>%
+  mutate(water_systems = str_replace(water_systems, 'Golden State Water Company Yorba Linda','Golden State Water Company Placentia')) %>%
+  mutate(water_systems = str_replace(water_systems, 'Suburban Water','Suburban Water Systems San Jose Hills')) %>% 
+  mutate(water_systems = str_replace(water_systems, 'West San Bernardino Couny Water District','West Valley Water District')) %>% 
+  mutate(water_systems = str_replace(water_systems,'Azusa Light & Water','Azusa')) %>% 
+  mutate(water_systems = stringr::str_squish(water_systems))
+
+# Select the dates.
+consumption <- consumption_og %>% 
+  select(supplier_name,stage_invoked,total_population_served,reporting_month,reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) %>% 
+  filter(reporting_month %in% c('Sep-14', 'Mar-15', 'Sep-15','Mar-16', 'Sep-16', 'Mar-17'))
+
+# Remove City of and other stuff in supplier name for consumption.
+consumption <- consumption %>% 
+  mutate(supplier_name = str_remove(supplier_name, pattern = 'City of')) %>% 
+  mutate(supplier_name = str_remove(supplier_name, pattern = 'Town of')) %>% 
+  mutate(supplier_name = str_remove(supplier_name, pattern = 'Public Works')) %>% 
+  mutate(supplier_name = str_remove(supplier_name, pattern = "[,]")) %>% 
+  mutate(supplier_name = str_remove(supplier_name, pattern = "[*]")) %>% 
+  mutate(supplier_name_water_board_original_names = supplier_name) %>% 
+  mutate(supplier_name = str_replace(supplier_name, 'East Bay Municipal Utilities District','East Bay Municipal Utility District')) %>% 
+  mutate(supplier_name = str_replace(supplier_name, 'Golden State Water Company Bell-Bell Gardens','Golden State Water Company Bell Gardens')) %>% 
+  mutate(supplier_name = str_replace(supplier_name, 'Golden State Water Company S San Gabriel','Golden State Water Company San Gabriel')) %>%
+  mutate(supplier_name = str_replace(supplier_name, 'Truckee-Donner Public Utilities District','Truckee Donner Public Utility District')) %>%
+  mutate(supplier_name = str_replace(supplier_name, 'South Tahoe Public Utilities District','South Tahoe Public Utility District')) %>%
+  mutate(supplier_name = str_replace(supplier_name, 'Beaumont-Cherry Valley Water District','Beaumont Cherry Valley Water District')) %>% 
+  mutate(supplier_name = str_replace(supplier_name, 'California Water Service Company Chico District','California Water Service Company Chico')) %>% 
+  mutate(supplier_name = str_replace(supplier_name, 'Mission Springs Water District','Mission Springs Water')) %>% 
+  mutate(supplier_name = str_replace(supplier_name, 'Jurupa Community Services District','Jurupa Community Service District')) %>% 
+  mutate(supplier_name = str_replace(supplier_name, 'Rubidoux Community Service District','Rubidoux Community Services District')) %>% 
+  mutate(supplier_name = str_replace(supplier_name, 'Myoma Dunes Mutual Water Company','Myoma Dunes Water Company')) %>% 
+  mutate(supplier_name = str_replace(supplier_name, 'Rancho California Water District','Rancho California Water')) %>% 
+  mutate(supplier_name = str_replace(supplier_name, 'Redwood City','Redwood City Water')) %>% 
+  mutate(supplier_name = str_replace(supplier_name, 'Victorville Water District','Victorville')) %>% 
+  filter(supplier_name != 'Cloverdale') %>% 
+  mutate(supplier_name = stringr::str_squish(supplier_name))
+
+# Rename supplier_name column in consumption_city_only to city_name for easier match.
+consumption_1 <- consumption %>% 
+  mutate(supplier_name = str_replace(supplier_name, 'Los Angeles Department of Water and Power','Los Angeles')) %>%
+  rename(city_name = supplier_name)
+
+# Export .csv file
+ write.csv(consumption_1, "consumption_1.csv")
+
+```
+
+
+City Run Systems
+```{r}
+# Match city run system with consumption data city run systems.
+## First filter out city run systems in conservation data.
+conservation_city_only <- conservation_og %>% 
+  filter(binary_city_run_or_no == "1")
+## Match.
+city_run_merged <- merge(consumption_1,conservation_city_only, by = "city_name")
+
+# Number of cities.
+city_run_merged_distinct <- city_run_merged %>% 
+  distinct(city_name)
+  
+#Export .csv file.
+ write.csv(city_run_merged, "city_run_merged.csv")
+
+```
+
+Missing Consumption Data for City Run
+```{r}
+# Find out which city run water systems did not match consumption data.
+missing_data_city <- anti_join(conservation_city_only, consumption_1, by = "city_name")
+
+missing_data_city_pop <- merge(missing_data_city,city_og, by = "city_name") %>% 
+  select(city_name,population_estimate_as_of_july_1_2018)
+
+# Export .csv file.
+write.csv(missing_data_city, "missing_data_city.csv")
+write.csv(missing_data_city_pop, "missing_data_city_pop.csv")
+```
+
+
+No City Run Systems
+```{r}
+# First I filtered out the non city ran systems in the conservation data. Then I matched the water systems in these cities that do not run the water (which I got from the city data) system to the conservation data.
+
+# Filter out NON city run systems in conservation data.
+conservation_non_city_only <- conservation_og %>% 
+  filter(binary_city_run_or_no == "0")
+
+# Match city data to conservation data according to city name.
+no_city_run_conserv_merged <- merge(city,conservation_non_city_only, by = "city_name")
+
+# Rename supplier_name column in consumption dataframe to water_systems for easier match.
+consumption_2 <- consumption %>% 
+  rename(water_systems = supplier_name)
+
+# Match consumption data to city_conserv_merged data to water_systems.
+non_city_merged <- merge(consumption_2, no_city_run_conserv_merged, by = "water_systems")
+
+# Export .csv file.
+ write.csv(non_city_merged, "non_city_merged.csv")
+```
+
+Missing Consumption Data for No City Run
+```{r}
+# Find out which non city run water systems did not match consumption data.
+missing_data_no_city <- anti_join(no_city_run_conserv_merged, consumption_2, by = "water_systems") 
+
+# Find out which cities these were.
+missing_data_no_city_name <- anti_join(no_city_run_conserv_merged, consumption_2, by = "water_systems") %>% 
+  distinct(city_name)
+
+# Find out which water systems these were.
+missing_data_no_city_ws <- anti_join(no_city_run_conserv_merged, consumption_2, by = "water_systems") %>% 
+  distinct(water_systems)
+
+# Export .csv file.
+write.csv(missing_data_no_city, "missing_data_no_city.csv")
+write.csv(missing_data_no_city_name, "missing_data_no_city_name.csv")
+write.csv(missing_data_no_city_ws, "missing_data_no_city_ws.csv")
+```
+
+
+Non City Run Water Systems and Number of Water Systems within those cities
+```{r}
+# Find the number of water systems not ran by the city with more than 1 water system.
+non_city_merged_ws_more_1 <- non_city_merged %>% 
+  filter(number_of_water_systems > 1) 
+
+non_city_merged_ws_more_1_count <- non_city_merged_ws_more_1 %>% 
+  distinct(water_systems,city_name,number_of_water_systems) %>% 
+  count(city_name) %>% 
+  filter(n > 1)
+
+
+# Find the number of water systems not ran by the city with only 1 water system.
+non_city_merged_ws_only_1 <- non_city_merged %>% 
+  filter(number_of_water_systems == 1) # 648 entries
+
+## Number of cities
+non_city_merged_ws_only_1_count <- non_city_merged_ws_only_1 %>% 
+  distinct(water_systems,city_name,number_of_water_systems) %>% 
+  filter(number_of_water_systems == 1) # 108 entries
+
+
+# Find the number of water systems not ran by the city with exactly 2 water systems.
+non_city_merged_ws_only_2 <- non_city_merged %>% 
+  filter(number_of_water_systems == 2) %>% 
+  filter(city_name %in% c("Aliso Viejo","Canyon Lake","Cathedral City","Chula Vista","Culver City","El Cajon","Encinitas","La Quinta","Laguna Beach","Laguna Hills","Placentia","Rancho Santa Margarita","San Ramon","Walnut Creek","West Hollywood")) #180 entries
+
+## Number of cities
+non_city_merged_ws_only_2_count <- non_city_merged_ws_only_2  %>% 
+  distinct(water_systems,city_name,number_of_water_systems) # 30 entries
+
+
+# Merge datasets for water systems not ran by the city with 2 or less water systems.
+non_city_merged_ws_2_or_less <- rbind(non_city_merged_ws_only_1, non_city_merged_ws_only_2) #828 entries
+
+## Number of cities
+non_city_merged_ws_2_or_less_count <- rbind(non_city_merged_ws_only_1, non_city_merged_ws_only_2) %>% 
+  distinct(water_systems,city_name,number_of_water_systems) # 138 entries
+
+
+# Export .csv file.
+write.csv(non_city_merged_ws_more_1, "non_city_merged_ws_more_1.csv")
+write.csv(non_city_merged_ws_more_1_count, "non_city_merged_ws_more_1_count.csv")
+```
+
+
+City Run Water Systems that said YES on Adopted Water Efficiency Policies/Programs
+```{r}
+# Find how many cities that run their water systems said yes on water efficiency programs/regulations adoption.
+## Filtered out Calexico because half of the data was suspect.
+city_we_yes <- city_run_merged %>% 
+  filter(has_your_jurisdiction_adopted_programs_and_or_policies_to_improve_water_use_efficiency == "Yes") %>% 
+  filter(city_name != "Calexico")
+
+## Number of cities
+city_we_yes_count <- city_we_yes %>% 
+  filter(has_your_jurisdiction_adopted_programs_and_or_policies_to_improve_water_use_efficiency == "Yes") %>% 
+  distinct(city_name)
+
+# Export .csv file.
+write.csv(city_we_yes, "city_we_yes.csv")
+write.csv(city_we_yes_count, "city_we_yes_count.csv")
+```
+
+
+City Run Water Systems that said NO on Adopted Water Efficiency Policies/Programs
+```{r}
+# Find how many cities that run their water systems said no on water efficiency programs/regulations adoption.
+city_we_no <- city_run_merged %>% 
+  filter(has_your_jurisdiction_adopted_programs_and_or_policies_to_improve_water_use_efficiency == "No") 
+
+# Export .csv file.
+write.csv(city_we_no, "city_we_no.csv")
+```
+
+
+Non City Run Water Systems that said YES on Adopted Water Efficiency Policies/Programs
+```{r}
+#1
+# Find how many cities that do not run their water systems said yes on water efficiency programs/regulations adoption.
+non_city_we_yes_1 <- non_city_merged_ws_only_1 %>% 
+  filter(has_your_jurisdiction_adopted_programs_and_or_policies_to_improve_water_use_efficiency == "Yes") 
+
+## Number of cities
+non_city_we_yes_count_1 <- non_city_merged_ws_only_1 %>% 
+  filter(has_your_jurisdiction_adopted_programs_and_or_policies_to_improve_water_use_efficiency == "Yes") %>% 
+  distinct(city_name)
+
+# Export .csv file.
+write.csv(non_city_we_yes_1, "non_city_we_yes_1.csv")
+write.csv(non_city_we_yes_count_1, "non_city_we_yes_count_1.csv")
+
+#2 only
+non_city_we_yes_count_only_2 <- non_city_merged_ws_only_2 %>% 
+  filter(has_your_jurisdiction_adopted_programs_and_or_policies_to_improve_water_use_efficiency == "Yes") %>% 
+  distinct(city_name)
+
+
+#2 or less
+# Find how many cities that do not run their water systems said yes on water efficiency programs/regulations adoption.
+non_city_we_yes_2_or_less <- non_city_merged_ws_2_or_less %>% 
+  filter(has_your_jurisdiction_adopted_programs_and_or_policies_to_improve_water_use_efficiency == "Yes") 
+
+## Number of cities
+non_city_we_yes_count_2_or_less <- non_city_merged_ws_2_or_less %>% 
+  filter(has_your_jurisdiction_adopted_programs_and_or_policies_to_improve_water_use_efficiency == "Yes") %>% 
+  distinct(city_name)
+
+# Export .csv file.
+write.csv(non_city_we_yes_1, "non_city_we_yes_1.csv")
+write.csv(non_city_we_yes_count_1, "non_city_we_yes_count_1.csv")
+write.csv(non_city_we_yes_2_or_less, "non_city_we_yes_2_or_less.csv")
+write.csv(non_city_we_yes_count_2_or_less, "non_city_we_yes_count_2_or_less.csv")
+```
+
+
+Non City Run Water Systems that said NO on Adopted Water Efficiency Policies/Programs
+```{r}
+#1
+# Find how many cities that do not run their water systems said no on water efficiency programs/regulations adoption.
+non_city_we_no_1 <- non_city_merged_ws_only_1 %>% 
+  filter(has_your_jurisdiction_adopted_programs_and_or_policies_to_improve_water_use_efficiency == "No") 
+
+## Number of cities
+non_city_we_no_count_1 <- non_city_merged_ws_only_1 %>% 
+  filter(has_your_jurisdiction_adopted_programs_and_or_policies_to_improve_water_use_efficiency == "No") %>% 
+  distinct(city_name)
+
+
+#2 only
+non_city_we_no_count_only_2 <- non_city_merged_ws_only_2 %>% 
+  filter(has_your_jurisdiction_adopted_programs_and_or_policies_to_improve_water_use_efficiency == "No")
+
+
+#2 or less
+# Find how many cities that do not run their water systems said no on water efficiency programs/regulations adoption.
+non_city_we_no_2_or_less <- non_city_merged_ws_2_or_less %>% 
+  filter(has_your_jurisdiction_adopted_programs_and_or_policies_to_improve_water_use_efficiency == "No") 
+
+## Number of cities
+non_city_we_no_count_2_or_less <- non_city_merged_ws_2_or_less %>% 
+  filter(has_your_jurisdiction_adopted_programs_and_or_policies_to_improve_water_use_efficiency == "No") %>% 
+  distinct(city_name)
+
+# Export .csv file.
+write.csv(non_city_we_no_1, "non_city_we_no_1.csv")
+write.csv(non_city_we_no_count_1, "non_city_we_no_count_1.csv")
+write.csv(non_city_we_no_2_or_less, "non_city_we_no_2_or_less.csv")
+write.csv(non_city_we_no_count_2_or_less, "non_city_we_no_count_2_or_less.csv")
+```
+
+
+Matching the Missing Data/Final Lists
+```{r}
+# Final list for cities that run their own water system.
+city_we_no_altered <- city_we_no %>% 
+  select(-supplier_name_water_board_original_names) %>% 
+  mutate(water_systems = city_name) 
+  
+city_we_yes <- city_we_yes %>% 
+  select(-supplier_name_water_board_original_names) %>% 
+  mutate(water_systems = city_name) 
+
+city_we_yes <- rbind(city_we_no_altered, city_we_yes) %>% 
+  mutate(number_of_water_systems = 1)
+
+# For non city run water systems filter out the complete data sets we have for cities.
+non_city_we_yes_3_or_more <- non_city_merged %>% 
+  filter(city_name %in% c("Fontana", "Irwindale", "Murrieta","Pleasant Hill","Walnut","West Covina"))
+
+non_city_we_yes <- rbind(non_city_we_yes_2_or_less, non_city_we_yes_3_or_more) %>% 
+  select(-supplier_name_water_board_original_names, -water_systems_og_names, -population_estimate_as_of_july_1_2018)
+
+non_city_we_yes_count <- non_city_we_yes %>% 
+  distinct(city_name)
+
+# FINAL LIST
+final_list_og <- rbind(city_we_yes,non_city_we_yes) %>% 
+  select(city_name, water_systems, number_of_water_systems, total_population_served, stage_invoked,reporting_month, reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014, binary_city_run_or_no, four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city,has_your_jurisdiction_adopted_programs_and_or_policies_to_improve_water_use_efficiency,retrofit_requirements_for_commercial_buildings_at_re_sale,retrofit_requirements_for_residential_buildings_at_re_sale, regulations_that_prohibit_development_projects_that_would_result_in_a_net_increase_in_water_use, ordinances_for_recycled_water, ordinances_or_landscaping_standards, development_standards_that_require_or_promote_low_impact_development_lid, residential_water_use_restrictions_e_g_limited_landscape_watering_times, commercial_water_use_restrictions_e_g_limited_landscape_watering_times, requirements_for_water_metering_at_residential_developments) %>% 
+drop_na(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) 
+
+# Final List for cities and water systems in final_list_og data frame.
+final_list_og_count_city <- final_list_og %>% 
+  distinct(city_name)
+
+final_list_og_count_ws <- final_list_og %>% 
+  distinct(water_systems)
+
+final_list_og_count_city_1 <- final_list_og %>% 
+  filter(binary_city_run_or_no == 1) %>% 
+  distinct(city_name)
+final_list_og_count_city_0 <- final_list_og %>% 
+  filter(binary_city_run_or_no == 0) %>% 
+  distinct(city_name)
+
+
+final_list_og_more_than_1 <- final_list_og %>%  
+  filter(number_of_water_systems >= 2)
+
+
+final_list_og_more_than_1_city <- final_list_og %>%
+  filter(number_of_water_systems >= 2) %>% 
+  distinct(city_name)
+
+# Checking numbers, if each city has correct number of entries for number of water systems.
+#final_list_og_check <- final_list_og %>%
+  #filter(number_of_water_systems == 1) %>% 
+  #count(city_name)
+
+# Export .csv file.
+write.csv(final_list_og, "final_list_og.csv")
+write.csv(final_list_og_more_than_1, "final_list_og_more_than_1.csv")
+```
+
+Date Column for Final List
+```{r}
+#final_list_og <- final_list_og %>% 
+  #mutate(reporting_month = lubridate::parse_date_time(reporting_month, #"%m-%y"))
+```
+
+
+Weighted Averages for 18 cities in final list that have more than 1 water system
+```{r}
+# Analysis done in Excel.
+# Read in data.
+final_list_og_more_than_1_weighted_averages_1_value <- read_csv("final_list_og_more_than_1_weighted_averages_new_dates_1_value_per_city.csv")
+  
+```
+
+Final List
+```{r}
+# Remove water_systems, stage_invoked, total_population columns and filter out number of water systems to 1
+final_list_cleaned <- rbind(city_we_yes,non_city_we_yes) %>% 
+  filter(number_of_water_systems == 1) %>% 
+  select(city_name,number_of_water_systems,reporting_month, reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014, binary_city_run_or_no, four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city,has_your_jurisdiction_adopted_programs_and_or_policies_to_improve_water_use_efficiency,retrofit_requirements_for_commercial_buildings_at_re_sale,retrofit_requirements_for_residential_buildings_at_re_sale, regulations_that_prohibit_development_projects_that_would_result_in_a_net_increase_in_water_use, ordinances_for_recycled_water, ordinances_or_landscaping_standards, development_standards_that_require_or_promote_low_impact_development_lid, residential_water_use_restrictions_e_g_limited_landscape_watering_times, commercial_water_use_restrictions_e_g_limited_landscape_watering_times, requirements_for_water_metering_at_residential_developments) %>% 
+drop_na(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014) 
+
+# Checking number of cities in final_list_cleaned
+final_list_cleaned_city <- final_list_cleaned  %>% 
+  distinct(city_name)
+
+# Combine 18 cities list (served by more than 1 water system) with cities served by only one water system list
+final_list <- rbind(final_list_cleaned,final_list_og_more_than_1_weighted_averages_1_value)
+
+# Remove consumption points higher than 350 R-GPCD
+final_list <- final_list %>% 
+  filter(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014 <= 500)
+
+# Clean up dates
+final_list <- final_list %>% 
+  mutate(reporting_month = str_replace(reporting_month, '14-Sep','Sep-14')) %>%
+  mutate(reporting_month = str_replace(reporting_month, '15-Mar','Mar-15')) %>% 
+  mutate(reporting_month = str_replace(reporting_month, '15-Sep','Sep-15')) %>% 
+  mutate(reporting_month = str_replace(reporting_month, '16-Mar','Mar-16')) %>% 
+  mutate(reporting_month = str_replace(reporting_month, '16-Sep','Sep-16')) %>% 
+  mutate(reporting_month = str_replace(reporting_month, '17-Mar','Mar-17')) 
+
+# Exporting .csv
+write_csv(final_list, "final_list_sep_mar.csv")
+```
+
+
+Adding Census Columns to Final List
+```{r}
+# Filter out only relevant census columns in city_og data frame (Missing population density and owner occupied housing)
+city_census <- city_og %>% 
+  select(city_name,hispanic_or_latino_percent, white_alone_not_hispanic_or_latino_percent, black_alone_not_hispanic_or_latino_percent,asian_alone_not_hispanic_or_latino_percent, household_median_income_dollars,percent_democratic)
+
+
+# Merge final dataframe with census data by city name
+final_list_census <- merge(final_list, city_census, by = "city_name")
+
+```
+
+
+Adding Population Per Square Mile Variable
+```{r}
+# Read in population per square mile variable
+pop_per_square_mile_og <- read_csv(here("other_census_variables","other_census_variables.csv"))
+
+# Select row "Population Per Square Mile, 2010"
+pop_per_square_mile <- pop_per_square_mile_og %>% 
+  slice(60)
+
+# Add missing cities that had no population per square mile data on census website
+pop_per_square_mile <- pop_per_square_mile %>% 
+  mutate(Vernon = "NA") %>% 
+  mutate('Del Rey Oaks' = "NA") %>% 
+  mutate(Colma = "NA") %>% 
+  mutate(Ross = "NA") %>% 
+  mutate(Sonora = "NA") %>% 
+  mutate(Irwindale = "NA") %>% 
+  mutate('Monterey Park' = "NA")
+  
+
+# Gather pop_per_square_mile data
+pop_per_square_mile <- gather(pop_per_square_mile, key = "city_name", value = "population_per_square_mile_2010")
+
+# Remove first row
+pop_per_square_mile <- pop_per_square_mile %>% 
+  slice(-1)
+
+# Remove commas in pop_per_square_mile column
+pop_per_square_mile <- pop_per_square_mile %>% 
+mutate(population_per_square_mile_2010 = as.numeric(as.character(gsub("[\\,,]", "", pop_per_square_mile$population_per_square_mile_2010))))
+
+
+# Merge owner_occupied_housing to final_list_census
+final_list_census <- merge(final_list_census, pop_per_square_mile, by = "city_name")
+
+# Counting cities in final_list_census
+final_list_census_count <- final_list_census %>% 
+  distinct(city_name)
+```
+
+
+Adding Owner Occupied Variable
+```{r}
+# Read in owner_occupied_housing file
+owner_occupied_housing_og <- read_csv(here("other_census_variables","other_census_variables.csv"))
+
+# Select row "Owner-occupied housing unit rate, 2014-2018"
+owner_occupied_housing <- owner_occupied_housing_og %>% 
+  slice(20)
+
+# Add missing cities that had no owner_occupied_housing_data
+owner_occupied_housing <- owner_occupied_housing %>% 
+  mutate(Vernon = "NA") %>% 
+  mutate('Del Rey Oaks' = "NA") %>% 
+  mutate(Colma = "NA") %>% 
+  mutate(Ross = "NA") %>% 
+  mutate(Sonora = "NA") %>% 
+  mutate(Irwindale = "NA") %>% 
+  mutate('Monterey Park' = "NA")
+  
+
+# Gather owner_occupied_housing data
+owner_occupied_housing <- gather(owner_occupied_housing, key = "city_name", value = "owner_occupied_housing_percent")
+
+# Remove first row
+owner_occupied_housing <- owner_occupied_housing %>% 
+  slice(-1)
+
+# Merge owner_occupied_housing to final_list_census
+final_list_census <- merge(final_list_census, owner_occupied_housing, by = "city_name")
+
+
+# Removing the % in owner occupied housing
+final_list_census <- final_list_census %>% 
+mutate(owner_occupied_housing_percent = as.numeric(gsub("[\\%,]", "", final_list_census$owner_occupied_housing_percent)))
+
+# Change dates to be consistent
+final_list_census <- final_list_census %>% 
+  mutate(reporting_month = str_replace(reporting_month, '15-Jan','Jan-15')) %>%
+  mutate(reporting_month = str_replace(reporting_month, '16-Jan','Jan-16')) %>% 
+  mutate(reporting_month = str_replace(reporting_month, '17-Jan','Jan-17')) %>% 
+  mutate(reporting_month = str_replace(reporting_month, '15-Jul','Jul-15')) %>% 
+  mutate(reporting_month = str_replace(reporting_month, '16-Jul','Jul-16')) %>% 
+  mutate(reporting_month = str_replace(reporting_month, '17-Jul','Jul-17'))
+
+# Counting cities in final_list_census
+final_list_census_count <- final_list_census %>% 
+  distinct(city_name)
+
+# Exporting .csv
+write_csv(final_list_census, "final_list_census.csv")
+```
+
+
+Spreading Sep and Mar to Column Names Versus Observations
+```{r}
+# Get average RGPCD for each city
+sep_mar <- final_list_census %>% 
+  mutate(reporting_date = lubridate::parse_date_time(reporting_month, "my")) %>% 
+  mutate(month = month(reporting_date, label = TRUE)) %>% 
+  mutate(year = year(reporting_date)) %>% 
+  group_by(city_name, month) %>% 
+  summarize(avg_rgpcd = mean(reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014)) %>% 
+  mutate_if(is.numeric, round, digits = 2) 
+
+# Make Sep and Mar columns rather than have them as observations
+sep_mar <- sep_mar %>% 
+  spread(final_list_census, key = month, value = avg_rgpcd, convert = TRUE) %>% 
+  clean_names() 
+```
+
+
+Adding a column to conservation_og dataframe to add up the number of water efficiency programs 
+```{r}
+conservation_og_sum <- conservation_og %>% 
+  mutate(total_conservation_measures = rowSums(.[,c("retrofit_requirements_for_commercial_buildings_at_re_sale","retrofit_requirements_for_residential_buildings_at_re_sale", "regulations_that_prohibit_development_projects_that_would_result_in_a_net_increase_in_water_use", "ordinances_for_recycled_water", "ordinances_or_landscaping_standards", "development_standards_that_require_or_promote_low_impact_development_lid", "residential_water_use_restrictions_e_g_limited_landscape_watering_times", "commercial_water_use_restrictions_e_g_limited_landscape_watering_times", "requirements_for_water_metering_at_residential_developments")], na.rm = TRUE))
+```
+
+
+Merging sep_mar dataframe to final_list_census dataframe
+```{r}
+# Getting only one observation per city in a dataframe
+final_list_census_no_reporting_month <- merge(city_census,conservation_og_sum, by = "city_name")
+
+# Adding in the owner occupied housing variable
+final_list_census_no_reporting_month <- merge(final_list_census_no_reporting_month, owner_occupied_housing, by = "city_name")
+
+# Adding in the population per square mile 2010 variable 
+final_list_census_no_reporting_month <- merge(final_list_census_no_reporting_month, pop_per_square_mile, by = "city_name")
+
+# Final list with census and spread jan and jul
+final_list_census_spread <- merge(final_list_census_no_reporting_month, sep_mar,  by = "city_name") 
+
+# Merge column of number of water systems to final_list_census_spread
+number_of_ws <- city_og %>% 
+  select(city_name,number_of_water_systems)
+
+# Adding number of water systems column to final_list_census_spread
+final_list_census_spread <- merge(final_list_census_spread, number_of_ws, by = "city_name")
+  
+
+# Rearrange the columns in final_list_census_spread
+final_list_census_spread <- final_list_census_spread %>% 
+  select(city_name, number_of_water_systems, sep, mar, binary_city_run_or_no, four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city,has_your_jurisdiction_adopted_programs_and_or_policies_to_improve_water_use_efficiency,retrofit_requirements_for_commercial_buildings_at_re_sale,retrofit_requirements_for_residential_buildings_at_re_sale, regulations_that_prohibit_development_projects_that_would_result_in_a_net_increase_in_water_use, ordinances_for_recycled_water, ordinances_or_landscaping_standards, development_standards_that_require_or_promote_low_impact_development_lid, residential_water_use_restrictions_e_g_limited_landscape_watering_times, commercial_water_use_restrictions_e_g_limited_landscape_watering_times, requirements_for_water_metering_at_residential_developments,total_conservation_measures,hispanic_or_latino_percent, white_alone_not_hispanic_or_latino_percent, black_alone_not_hispanic_or_latino_percent,asian_alone_not_hispanic_or_latino_percent, household_median_income_dollars,percent_democratic,owner_occupied_housing_percent, population_per_square_mile_2010)
+
+# Removing the % in owner occupied housing
+final_list_census_spread <- final_list_census_spread %>% 
+mutate(owner_occupied_housing_percent = as.numeric(gsub("[\\%,]", "", final_list_census_spread$owner_occupied_housing_percent)))
+
+# Removing the + for 250,000 for household median income
+final_list_census_spread <- final_list_census_spread %>% 
+mutate(household_median_income_dollars = as.numeric(gsub("[\\+,]", "", final_list_census_spread$household_median_income_dollars)))
+
+# Changing black_alone_not_hispanic_or_latino_percent character column to numeric column
+final_list_census_spread <- final_list_census_spread %>% 
+  mutate(black_alone_not_hispanic_or_latino_percent = as.numeric(as.character(black_alone_not_hispanic_or_latino_percent)))
+
+# Filter out only city run water systems
+final_list_census_spread_city <- final_list_census_spread %>% 
+  filter(binary_city_run_or_no == 1) %>% 
+  rename(city_run = binary_city_run_or_no)
+
+# Filter out only cities not run by water systems
+final_list_census_spread_non_city <- final_list_census_spread %>% 
+  filter(binary_city_run_or_no == 0) %>% 
+  rename(not_city_run = binary_city_run_or_no)
+
+# Exporting .csv
+write_csv(final_list_census_spread, "final_list_census_spread.csv")
+write_csv(final_list_census_spread_city, "final_list_census_spread_city.csv")
+write_csv(final_list_census_spread_non_city, "final_list_census_spread_non_city.csv")
+```
