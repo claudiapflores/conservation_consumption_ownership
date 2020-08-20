@@ -1,0 +1,109 @@
+city_name,number_of_water_systems,reporting_month,reported_residential_gallons_per_capita_day_r_gpcd_starting_in_september_2014,binary_city_run_or_no,four_system_categories_1_city_2_iou_3_sd_4_multiple_mutual_other_city,has_your_jurisdiction_adopted_programs_and_or_policies_to_improve_water_use_efficiency,retrofit_requirements_for_commercial_buildings_at_re_sale,retrofit_requirements_for_residential_buildings_at_re_sale,regulations_that_prohibit_development_projects_that_would_result_in_a_net_increase_in_water_use,ordinances_for_recycled_water,ordinances_or_landscaping_standards,development_standards_that_require_or_promote_low_impact_development_lid,residential_water_use_restrictions_e_g_limited_landscape_watering_times,commercial_water_use_restrictions_e_g_limited_landscape_watering_times,requirements_for_water_metering_at_residential_developments
+Aliso Viejo,2,14-Sep,123.05,0,3,Yes,NA,NA,1,1,1,1,NA,NA,1
+Aliso Viejo,2,16-Sep,115.79,0,3,Yes,NA,NA,1,1,1,1,NA,NA,1
+Aliso Viejo,2,15-Sep,121.45,0,3,Yes,NA,NA,1,1,1,1,NA,NA,1
+Aliso Viejo,2,15-Mar,100.01,0,3,Yes,NA,NA,1,1,1,1,NA,NA,1
+Aliso Viejo,2,16-Mar,85.05,0,3,Yes,NA,NA,1,1,1,1,NA,NA,1
+Aliso Viejo,2,17-Mar,83.12,0,3,Yes,NA,NA,1,1,1,1,NA,NA,1
+Cathedral City,2,15-Sep,195.74,0,3,Yes,1,1,1,NA,1,1,1,1,NA
+Cathedral City,2,17-Mar,117.75,0,3,Yes,1,1,1,NA,1,1,1,1,NA
+Cathedral City,2,15-Mar,132.5,0,3,Yes,1,1,1,NA,1,1,1,1,NA
+Cathedral City,2,14-Sep,213.9,0,3,Yes,1,1,1,NA,1,1,1,1,NA
+Cathedral City,2,16-Sep,232.75,0,3,Yes,1,1,1,NA,1,1,1,1,NA
+Cathedral City,2,16-Mar,123.55,0,3,Yes,1,1,1,NA,1,1,1,1,NA
+Chula Vista,2,16-Sep,67.78,0,3,Yes,NA,NA,NA,1,1,1,NA,NA,NA
+Chula Vista,2,15-Mar,63.97,0,3,Yes,NA,NA,NA,1,1,1,NA,NA,NA
+Chula Vista,2,15-Sep,64.24,0,3,Yes,NA,NA,NA,1,1,1,NA,NA,NA
+Chula Vista,2,16-Mar,54.37,0,3,Yes,NA,NA,NA,1,1,1,NA,NA,NA
+Chula Vista,2,17-Mar,56.3,0,3,Yes,NA,NA,NA,1,1,1,NA,NA,NA
+Chula Vista,2,14-Sep,79.74,0,3,Yes,NA,NA,NA,1,1,1,NA,NA,NA
+El Cajon,2,14-Sep,102.58,0,3,Yes,NA,NA,1,NA,1,1,NA,NA,NA
+El Cajon,2,16-Sep,86.84,0,3,Yes,NA,NA,1,NA,1,1,NA,NA,NA
+El Cajon,2,16-Mar,63.08,0,3,Yes,NA,NA,1,NA,1,1,NA,NA,NA
+El Cajon,2,15-Mar,73.99,0,3,Yes,NA,NA,1,NA,1,1,NA,NA,NA
+El Cajon,2,17-Mar,61.03,0,3,Yes,NA,NA,1,NA,1,1,NA,NA,NA
+El Cajon,2,15-Sep,78.43,0,3,Yes,NA,NA,1,NA,1,1,NA,NA,NA
+Encinitas,2,15-Mar,123.46,0,3,Yes,NA,NA,NA,NA,1,1,1,1,NA
+Encinitas,2,16-Mar,94.86,0,3,Yes,NA,NA,NA,NA,1,1,1,1,NA
+Encinitas,2,14-Sep,171.6,0,3,Yes,NA,NA,NA,NA,1,1,1,1,NA
+Encinitas,2,15-Sep,123.52,0,3,Yes,NA,NA,NA,NA,1,1,1,1,NA
+Encinitas,2,16-Sep,134.32,0,3,Yes,NA,NA,NA,NA,1,1,1,1,NA
+Encinitas,2,17-Mar,83.78,0,3,Yes,NA,NA,NA,NA,1,1,1,1,NA
+Fontana,3,14-Sep,138.35,0,4,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Fontana,3,15-Mar,105.95,0,4,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Fontana,3,17-Mar,79.51,0,4,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Fontana,3,16-Sep,118.03,0,4,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Fontana,3,15-Sep,100.93,0,4,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Fontana,3,16-Mar,78.07,0,4,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Irwindale,5,14-Sep,101.56,0,4,Yes,NA,NA,NA,NA,1,1,NA,NA,NA
+Irwindale,5,16-Sep,100.36,0,4,Yes,NA,NA,NA,NA,1,1,NA,NA,NA
+Irwindale,5,16-Mar,63.96,0,4,Yes,NA,NA,NA,NA,1,1,NA,NA,NA
+Irwindale,5,15-Mar,84.46,0,4,Yes,NA,NA,NA,NA,1,1,NA,NA,NA
+Irwindale,5,15-Sep,83.89,0,4,Yes,NA,NA,NA,NA,1,1,NA,NA,NA
+Irwindale,5,17-Mar,65.74,0,4,Yes,NA,NA,NA,NA,1,1,NA,NA,NA
+La Quinta,2,15-Sep,211.11,0,4,Yes,NA,NA,NA,1,1,NA,1,1,NA
+La Quinta,2,17-Mar,139.3,0,4,Yes,NA,NA,NA,1,1,NA,1,1,NA
+La Quinta,2,15-Mar,171.67,0,4,Yes,NA,NA,NA,1,1,NA,1,1,NA
+La Quinta,2,14-Sep,228.72,0,4,Yes,NA,NA,NA,1,1,NA,1,1,NA
+La Quinta,2,16-Sep,246.05,0,4,Yes,NA,NA,NA,1,1,NA,1,1,NA
+La Quinta,2,16-Mar,145.7,0,4,Yes,NA,NA,NA,1,1,NA,1,1,NA
+Laguna Beach,2,17-Mar,57.92,0,3,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Laguna Beach,2,16-Sep,100.6,0,3,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Laguna Beach,2,14-Sep,131.1,0,3,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Laguna Beach,2,15-Mar,85.59,0,3,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Laguna Beach,2,15-Sep,89.76,0,3,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Laguna Beach,2,16-Mar,64.47,0,3,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Laguna Hills,2,14-Sep,119.24,0,3,Yes,NA,NA,NA,NA,1,1,NA,NA,1
+Laguna Hills,2,16-Sep,107.6,0,3,Yes,NA,NA,NA,NA,1,1,NA,NA,1
+Laguna Hills,2,15-Sep,108.45,0,3,Yes,NA,NA,NA,NA,1,1,NA,NA,1
+Laguna Hills,2,15-Mar,100.95,0,3,Yes,NA,NA,NA,NA,1,1,NA,NA,1
+Laguna Hills,2,16-Mar,79.2,0,3,Yes,NA,NA,NA,NA,1,1,NA,NA,1
+Laguna Hills,2,17-Mar,86.85,0,3,Yes,NA,NA,NA,NA,1,1,NA,NA,1
+Murrieta,4,16-Mar,95.22,0,3,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Murrieta,4,15-Sep,138.66,0,3,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Murrieta,4,17-Mar,96.05,0,3,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Murrieta,4,15-Mar,134.66,0,3,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Murrieta,4,16-Sep,151.47,0,3,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Murrieta,4,14-Sep,173.3,0,3,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Placentia,2,16-Mar,74.64,0,4,Yes,NA,NA,NA,NA,1,NA,NA,NA,1
+Placentia,2,14-Sep,124.73,0,4,Yes,NA,NA,NA,NA,1,NA,NA,NA,1
+Placentia,2,15-Sep,88.66,0,4,Yes,NA,NA,NA,NA,1,NA,NA,NA,1
+Placentia,2,16-Sep,118.58,0,4,Yes,NA,NA,NA,NA,1,NA,NA,NA,1
+Placentia,2,15-Mar,94.4,0,4,Yes,NA,NA,NA,NA,1,NA,NA,NA,1
+Placentia,2,17-Mar,80.64,0,4,Yes,NA,NA,NA,NA,1,NA,NA,NA,1
+Pleasant Hill,3,17-Mar,53.61,0,3,Yes,NA,NA,NA,NA,1,1,NA,NA,NA
+Pleasant Hill,3,15-Mar,56.69,0,3,Yes,NA,NA,NA,NA,1,1,NA,NA,NA
+Pleasant Hill,3,15-Sep,75.27,0,3,Yes,NA,NA,NA,NA,1,1,NA,NA,NA
+Pleasant Hill,3,16-Mar,48.01,0,3,Yes,NA,NA,NA,NA,1,1,NA,NA,NA
+Pleasant Hill,3,16-Sep,102.72,0,3,Yes,NA,NA,NA,NA,1,1,NA,NA,NA
+Pleasant Hill,3,14-Sep,110.39,0,3,Yes,NA,NA,NA,NA,1,1,NA,NA,NA
+Rancho Santa Margarita,2,17-Mar,63.37,0,3,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Rancho Santa Margarita,2,16-Mar,75.32,0,3,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Rancho Santa Margarita,2,15-Mar,103.95,0,3,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Rancho Santa Margarita,2,16-Sep,116.31,0,3,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Rancho Santa Margarita,2,15-Sep,106.15,0,3,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+Rancho Santa Margarita,2,14-Sep,126.49,0,3,Yes,NA,NA,NA,NA,1,NA,NA,NA,NA
+San Ramon,2,17-Mar,50.56,0,3,Yes,NA,NA,NA,1,1,1,NA,NA,NA
+San Ramon,2,14-Sep,77.24,0,3,Yes,NA,NA,NA,1,1,1,NA,NA,NA
+San Ramon,2,15-Sep,68.04,0,3,Yes,NA,NA,NA,1,1,1,NA,NA,NA
+San Ramon,2,15-Mar,50.24,0,3,Yes,NA,NA,NA,1,1,1,NA,NA,NA
+San Ramon,2,16-Mar,50.86,0,3,Yes,NA,NA,NA,1,1,1,NA,NA,NA
+San Ramon,2,16-Sep,75.48,0,3,Yes,NA,NA,NA,1,1,1,NA,NA,NA
+Walnut,3,17-Mar,88.43,0,4,Yes,NA,NA,NA,NA,1,1,1,NA,NA
+Walnut,3,16-Sep,127.05,0,4,Yes,NA,NA,NA,NA,1,1,1,NA,NA
+Walnut,3,14-Sep,148.96,0,4,Yes,NA,NA,NA,NA,1,1,1,NA,NA
+Walnut,3,15-Sep,109.33,0,4,Yes,NA,NA,NA,NA,1,1,1,NA,NA
+Walnut,3,16-Mar,81.8,0,4,Yes,NA,NA,NA,NA,1,1,1,NA,NA
+Walnut,3,15-Mar,108.31,0,4,Yes,NA,NA,NA,NA,1,1,1,NA,NA
+Walnut Creek,2,17-Mar,52.3,0,3,Yes,NA,NA,NA,NA,1,1,1,1,1
+Walnut Creek,2,15-Mar,63.29,0,3,Yes,NA,NA,NA,NA,1,1,1,1,1
+Walnut Creek,2,15-Sep,80.22,0,3,Yes,NA,NA,NA,NA,1,1,1,1,1
+Walnut Creek,2,16-Mar,51.97,0,3,Yes,NA,NA,NA,NA,1,1,1,1,1
+Walnut Creek,2,16-Sep,95.13,0,3,Yes,NA,NA,NA,NA,1,1,1,1,1
+Walnut Creek,2,14-Sep,101.81,0,3,Yes,NA,NA,NA,NA,1,1,1,1,1
+West Covina,8,14-Sep,106.26,0,4,Yes,NA,NA,NA,NA,1,1,NA,NA,NA
+West Covina,8,16-Sep,102.63,0,4,Yes,NA,NA,NA,NA,1,1,NA,NA,NA
+West Covina,8,16-Mar,65.58,0,4,Yes,NA,NA,NA,NA,1,1,NA,NA,NA
+West Covina,8,15-Mar,79.59,0,4,Yes,NA,NA,NA,NA,1,1,NA,NA,NA
+West Covina,8,15-Sep,87.23,0,4,Yes,NA,NA,NA,NA,1,1,NA,NA,NA
+West Covina,8,17-Mar,75.75,0,4,Yes,NA,NA,NA,NA,1,1,NA,NA,NA
