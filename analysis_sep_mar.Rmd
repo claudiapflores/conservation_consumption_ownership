@@ -838,7 +838,7 @@ anova_bind <- rbind(anova_bind, anova_bind_3)
 # Change binary_city_run_or_no and executive_order_timeline columns to factor
 anova_bind <- anova_bind %>% 
   mutate(binary_city_run_or_no = as.factor(anova_bind$binary_city_run_or_no)) %>% 
-  mutate(executive_order_timeline = as.factor(anova_bind$executive_order_timeline))
+  mutate(executive_order_timeline = factor(anova_bind$executive_order_timeline, ordered = TRUE, levels = c("Pre","During","Post"))) 
 
 # Checking the factor and level of binary_city_run_or_no and executive_order_timeline columns
 class(anova_bind$binary_city_run_or_no)
